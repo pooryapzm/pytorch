@@ -634,8 +634,6 @@
     CPU: embedding_dense_backward_cpu
     CUDA: embedding_dense_backward_cuda
 
-- func: embedding_dense_double_backward(Tensor grad, IndexTensor indices) -> Tensor
-
 - func: embedding_renorm_(Tensor self, IndexTensor indices, double max_norm, double norm_type) -> Tensor
   dispatch:
     CPU: embedding_renorm_cpu_
