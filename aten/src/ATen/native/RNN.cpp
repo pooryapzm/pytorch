@@ -153,7 +153,7 @@ struct LSTMCell : Cell<std::tuple<Tensor, Tensor>> {
   hidden_type operator()(const Tensor& input, const hidden_type& hidden, const CellParams& params) const override {
     auto hx = std::get<0>(hidden);
     auto cx = std::get<1>(hidden);
-
+/* Should be commented out otherwise double gradient doesn't work
     if (input.is_cuda()) {
       auto igates = at::matmul(input, params.w_ih.t());
       auto hgates = at::matmul(hx, params.w_hh.t());
@@ -161,7 +161,7 @@ struct LSTMCell : Cell<std::tuple<Tensor, Tensor>> {
       // Slice off the workspace argument (it's needed only for AD).
       return std::make_tuple(std::get<0>(result), std::get<1>(result));
     }
-
+*/
     auto gates = at::linear(input, params.w_ih, params.b_ih) + at::linear(hx, params.w_hh, params.b_hh);
     auto chunked_gates = gates.chunk(4, 1);
 
@@ -179,14 +179,15 @@ struct LSTMCell : Cell<std::tuple<Tensor, Tensor>> {
 
 struct GRUCell : Cell<Tensor> {
   hidden_type operator()(const Tensor& input, const hidden_type& hidden, const CellParams& params) const override {
-    if (input.is_cuda()) {
+/*Should be commented out otherwise double gradient doesn't work   
+ if (input.is_cuda()) {
       auto igates = at::matmul(input, params.w_ih.t());
       auto hgates = at::matmul(hidden, params.w_hh.t());
       auto result = at::_thnn_fused_gru_cell(igates, hgates, hidden, params.b_ih, params.b_hh);
       // Slice off the workspace argument (it's needed only for AD).
       return std::get<0>(result);
     }
-
+*/
     auto igates = at::linear(input, params.w_ih, params.b_ih);
     auto hgates = at::linear(hidden, params.w_hh, params.b_hh);
     auto chunked_igates = igates.chunk(3, 1);
