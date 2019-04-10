@@ -33,6 +33,7 @@ TESTS = [
     'indexing',
     'indexing_cuda',
     'jit',
+    'mkldnn',
     'multiprocessing',
     'multiprocessing_spawn',
     'nccl',
@@ -45,6 +46,8 @@ TESTS = [
     'type_info',
     'type_hints',
     'utils',
+    'namedtuple_return_api',
+    'jit_fuser',
 ]
 
 WINDOWS_BLACKLIST = [
@@ -90,8 +93,8 @@ THD_DISTRIBUTED_TESTS_CONFIG = {
 }
 
 # https://stackoverflow.com/questions/2549939/get-signal-names-from-numbers-in-python
-SIGNALS_TO_NAMES_DICT = dict((getattr(signal, n), n) for n in dir(signal)
-                             if n.startswith('SIG') and '_' not in n)
+SIGNALS_TO_NAMES_DICT = {getattr(signal, n): n for n in dir(signal)
+                         if n.startswith('SIG') and '_' not in n}
 
 CPP_EXTENSIONS_ERROR = """
 Ninja (https://ninja-build.org) must be available to run C++ extensions tests,
@@ -403,9 +406,8 @@ def get_selected_tests(options):
     selected_tests = exclude_tests(options.exclude, selected_tests)
 
     if sys.platform == 'win32' and not options.ignore_win_blacklist:
-        ostype = os.environ.get('MSYSTEM')
         target_arch = os.environ.get('VSCMD_ARG_TGT_ARCH')
-        if ostype != 'MINGW64' or target_arch != 'x64':
+        if target_arch != 'x64':
             WINDOWS_BLACKLIST.append('cpp_extensions')
 
         selected_tests = exclude_tests(WINDOWS_BLACKLIST, selected_tests, 'on Windows')
